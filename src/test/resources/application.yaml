@@ -9,6 +9,9 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-drop
+    open-in-view: false
+  thymeleaf:
+    check-template-location: false
   docker:
     compose:
       enabled: false
