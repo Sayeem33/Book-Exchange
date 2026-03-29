@@ -61,6 +61,19 @@ class AuthControllerIntegrationTest {
     }
 
     @Test
+    void shouldReturnBadRequestForInvalidRegistrationPayload() throws Exception {
+        Map<String, String> request = new HashMap<>();
+        request.put("username", "ab");
+        request.put("email", "invalid-email");
+        request.put("password", "123");
+
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     @WithMockUser(username = "buyer", roles = {"BUYER"})
     void shouldForbidBuyerFromAdminEndpoint() throws Exception {
         mockMvc.perform(get("/api/admin/ping"))
