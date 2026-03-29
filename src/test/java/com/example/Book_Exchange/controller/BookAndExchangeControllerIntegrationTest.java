@@ -159,6 +159,52 @@ class BookAndExchangeControllerIntegrationTest {
                 .andExpect(status().isOk());
     }
 
+    @Test
+    @WithMockUser(username = "seller2", roles = {"SELLER"})
+    void sellerShouldNotDeleteBookOwnedByAnotherSeller() throws Exception {
+        AppUser seller1 = saveUserWithRole("seller1", "seller1@example.com", RoleName.SELLER);
+        saveUserWithRole("seller2", "seller2@example.com", RoleName.SELLER);
+
+        Book book = new Book();
+        book.setTitle("Test Book");
+        book.setAuthorName("Test Author");
+        book.setDescription("Owner test");
+        book.setCondition(BookCondition.GOOD);
+        book.setStatus(BookStatus.AVAILABLE);
+        book.setSeller(seller1);
+        book = bookRepository.save(book);
+
+        mockMvc.perform(delete("/api/seller/books/{bookId}", book.getId()))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(username = "buyer2", roles = {"BUYER"})
+    void buyerShouldNotDeleteAnotherBuyersExchangeRequest() throws Exception {
+        AppUser seller = saveUserWithRole("sellerx", "sellerx@example.com", RoleName.SELLER);
+        AppUser buyer1 = saveUserWithRole("buyer1", "buyer1@example.com", RoleName.BUYER);
+        saveUserWithRole("buyer2", "buyer2@example.com", RoleName.BUYER);
+
+        Book book = new Book();
+        book.setTitle("Secure Book");
+        book.setAuthorName("Sec Author");
+        book.setDescription("Permission test");
+        book.setCondition(BookCondition.GOOD);
+        book.setStatus(BookStatus.AVAILABLE);
+        book.setSeller(seller);
+        book = bookRepository.save(book);
+
+        ExchangeRequest request = new ExchangeRequest();
+        request.setBook(book);
+        request.setBuyer(buyer1);
+        request.setMessage("Mine");
+        request.setStatus(ExchangeRequestStatus.PENDING);
+        request = exchangeRequestRepository.save(request);
+
+        mockMvc.perform(delete("/api/buyer/exchange-requests/{requestId}", request.getId()))
+                .andExpect(status().isForbidden());
+    }
+
     private AppUser saveUserWithRole(String username, String email, RoleName roleName) {
         Role role = roleRepository.findByName(roleName).orElseGet(() -> roleRepository.save(new Role(roleName)));
         AppUser appUser = new AppUser();
