@@ -11,10 +11,12 @@ import com.example.Book_Exchange.mapper.BookMapper;
 import com.example.Book_Exchange.repository.AppUserRepository;
 import com.example.Book_Exchange.repository.BookRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@Transactional
 public class BookService {
 
     private final BookRepository bookRepository;

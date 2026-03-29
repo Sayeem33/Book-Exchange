@@ -14,10 +14,12 @@ import com.example.Book_Exchange.repository.AppUserRepository;
 import com.example.Book_Exchange.repository.BookRepository;
 import com.example.Book_Exchange.repository.ExchangeRequestRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@Transactional
 public class ExchangeRequestService {
 
     private final ExchangeRequestRepository exchangeRequestRepository;
@@ -80,6 +82,34 @@ public class ExchangeRequestService {
         }
 
         return ExchangeRequestMapper.toResponse(exchangeRequestRepository.save(exchangeRequest));
+    }
+
+    public ExchangeRequestResponse getRequestById(Long requestId, String username) {
+        ExchangeRequest exchangeRequest = exchangeRequestRepository.findById(requestId)
+                .orElseThrow(() -> new ResourceNotFoundException("Exchange request not found: " + requestId));
+
+        boolean isBuyer = exchangeRequest.getBuyer().getUsername().equals(username);
+        boolean isSeller = exchangeRequest.getBook().getSeller().getUsername().equals(username);
+        if (!isBuyer && !isSeller) {
+            throw new ForbiddenOperationException("Access denied for this exchange request");
+        }
+
+        return ExchangeRequestMapper.toResponse(exchangeRequest);
+    }
+
+    public void deleteRequest(Long requestId, String buyerUsername) {
+        ExchangeRequest exchangeRequest = exchangeRequestRepository.findById(requestId)
+                .orElseThrow(() -> new ResourceNotFoundException("Exchange request not found: " + requestId));
+
+        if (!exchangeRequest.getBuyer().getUsername().equals(buyerUsername)) {
+            throw new ForbiddenOperationException("Only buyer can delete this exchange request");
+        }
+
+        if (exchangeRequest.getStatus() != ExchangeRequestStatus.PENDING) {
+            throw new BusinessValidationException("Only pending requests can be deleted");
+        }
+
+        exchangeRequestRepository.delete(exchangeRequest);
     }
 
     public List<ExchangeRequestResponse> getRequestsForBuyer(String buyerUsername) {
