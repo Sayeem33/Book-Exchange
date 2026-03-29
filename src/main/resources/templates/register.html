@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Book Exchange</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<main class="auth-wrapper">
+    <h1>Register</h1>
+    <p>This form is UI-only for now. Registration API is available at <code>/api/auth/register</code>.</p>
+    <form class="auth-form" onsubmit="event.preventDefault(); alert('Use POST /api/auth/register for now.');">
+        <label for="username">Username</label>
+        <input id="username" type="text" required>
+
+        <label for="email">Email</label>
+        <input id="email" type="email" required>
+
+        <label for="password">Password</label>
+        <input id="password" type="password" required>
+
+        <button type="submit">Create Account</button>
+    </form>
+    <a th:href="@{/login}">Already have an account? Login</a>
+</main>
+</body>
+</html>

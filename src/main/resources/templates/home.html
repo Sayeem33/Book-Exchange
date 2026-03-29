@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Exchange - Home</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<header>
+    <h1>Book Exchange Platform</h1>
+    <nav>
+        <a th:href="@{/}">Home</a>
+        <a th:href="@{/seller/dashboard}" sec:authorize="hasAnyRole('SELLER','ADMIN')">Seller Dashboard</a>
+        <a th:href="@{/buyer/requests}" sec:authorize="hasAnyRole('BUYER','ADMIN')">Buyer Requests</a>
+        <a th:href="@{/admin/panel}" sec:authorize="hasRole('ADMIN')">Admin Panel</a>
+        <a th:href="@{/login}" sec:authorize="!isAuthenticated()">Login</a>
+        <form th:action="@{/logout}" method="post" sec:authorize="isAuthenticated()" style="display:inline">
+            <button type="submit">Logout</button>
+        </form>
+    </nav>
+</header>
+<main>
+    <h2>Available Books</h2>
+    <p th:if="${#lists.isEmpty(books)}">No books listed yet.</p>
+    <div class="card-list" th:if="${!#lists.isEmpty(books)}">
+        <article class="card" th:each="book : ${books}">
+            <h3 th:text="${book.title}">Book Title</h3>
+            <p><strong>Author:</strong> <span th:text="${book.authorName}">Author</span></p>
+            <p><strong>Condition:</strong> <span th:text="${book.condition}">GOOD</span></p>
+            <p th:text="${book.description}">Description</p>
+            <p><strong>Seller:</strong> <span th:text="${book.sellerUsername}">seller</span></p>
+        </article>
+    </div>
+</main>
+</body>
+</html>
