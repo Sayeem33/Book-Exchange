@@ -8,19 +8,17 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Book {
+public class SavedBook {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String title;
-
-    private String author;
-
-    private String description;
+    @ManyToOne
+    @JoinColumn(name = "buyer_id", nullable = false)
+    private User buyer;
 
     @ManyToOne
-    @JoinColumn(name = "seller_id")
-    private User seller;
+    @JoinColumn(name = "book_id", nullable = false)
+    private Book book;
 }
