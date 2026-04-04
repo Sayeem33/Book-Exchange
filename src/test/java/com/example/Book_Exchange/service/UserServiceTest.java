@@ -1,16 +1,9 @@
 package com.example.Book_Exchange.service;
 
-import com.example.Book_Exchange.dto.auth.RegisterRequest;
-import com.example.Book_Exchange.entity.AppUser;
-import com.example.Book_Exchange.entity.Role;
-import com.example.Book_Exchange.entity.RoleName;
-import com.example.Book_Exchange.exception.ResourceConflictException;
-import com.example.Book_Exchange.repository.AppUserRepository;
-import com.example.Book_Exchange.repository.RoleRepository;
-import org.junit.jupiter.api.BeforeEach;
+import com.example.Book_Exchange.entity.User;
+import com.example.Book_Exchange.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -18,21 +11,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
     @Mock
-    private AppUserRepository appUserRepository;
-
-    @Mock
-    private RoleRepository roleRepository;
+    private UserRepository userRepository;
 
     @Mock
     private PasswordEncoder passwordEncoder;
@@ -40,80 +26,56 @@ class UserServiceTest {
     @InjectMocks
     private UserService userService;
 
-    private RegisterRequest request;
+    // ✅ TEST 1: REGISTER USER
+    @Test
+    void testRegisterUser() {
 
-    @BeforeEach
-    void setUp() {
-        request = new RegisterRequest();
-        request.setUsername("alice");
-        request.setEmail("alice@example.com");
-        request.setPassword("secret123");
+        // 1. input user
+        User user = new User();
+        user.setName("John");
+        user.setEmail("john@mail.com");
+        user.setPassword("1234");
+
+        // 2. mock password encoder
+        when(passwordEncoder.encode("1234")).thenReturn("encoded1234");
+
+        // 3. mock save
+        User savedUser = new User();
+        savedUser.setId(1L);
+        savedUser.setName("John");
+        savedUser.setEmail("john@mail.com");
+        savedUser.setPassword("encoded1234");
+
+        when(userRepository.save(any(User.class))).thenReturn(savedUser);
+
+        // 4. call service
+        User result = userService.register(user);
+
+        // 5. assertions
+        assertEquals("encoded1234", result.getPassword());
+        assertEquals("John", result.getName());
+
+        // 6. verify interactions
+        verify(passwordEncoder, times(1)).encode("1234");
+        verify(userRepository, times(1)).save(user);
     }
 
+    // ✅ TEST 2: FIND BY EMAIL
     @Test
-    void shouldRegisterUserWithEncodedPasswordAndDefaultBuyerRole() {
-        Role buyerRole = new Role(RoleName.BUYER);
+    void testFindByEmail() {
 
-        when(appUserRepository.existsByUsername("alice")).thenReturn(false);
-        when(appUserRepository.existsByEmail("alice@example.com")).thenReturn(false);
-        when(roleRepository.findByName(RoleName.BUYER)).thenReturn(Optional.of(buyerRole));
-        when(passwordEncoder.encode("secret123")).thenReturn("encoded-password");
-        when(appUserRepository.save(any(AppUser.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        User user = new User();
+        user.setId(1L);
+        user.setEmail("test@mail.com");
 
-        AppUser saved = userService.register(request);
+        when(userRepository.findByEmail("test@mail.com"))
+                .thenReturn(Optional.of(user));
 
-        assertEquals("alice", saved.getUsername());
-        assertEquals("alice@example.com", saved.getEmail());
-        assertEquals("encoded-password", saved.getPassword());
-        assertTrue(saved.getRoles().stream().anyMatch(role -> role.getName() == RoleName.BUYER));
-    }
+        User result = userService.findByEmail("test@mail.com");
 
-    @Test
-    void shouldThrowConflictWhenUsernameAlreadyExists() {
-        when(appUserRepository.existsByUsername("alice")).thenReturn(true);
+        assertNotNull(result);
+        assertEquals("test@mail.com", result.getEmail());
 
-        assertThrows(ResourceConflictException.class, () -> userService.register(request));
-    }
-
-    @Test
-    void shouldThrowConflictWhenEmailAlreadyExists() {
-        when(appUserRepository.existsByUsername("alice")).thenReturn(false);
-        when(appUserRepository.existsByEmail("alice@example.com")).thenReturn(true);
-
-        assertThrows(ResourceConflictException.class, () -> userService.register(request));
-    }
-
-    @Test
-    void shouldUseRequestedSellerRoleWhenProvided() {
-        Role sellerRole = new Role(RoleName.SELLER);
-        request.setRole("seller");
-
-        when(appUserRepository.existsByUsername("alice")).thenReturn(false);
-        when(appUserRepository.existsByEmail("alice@example.com")).thenReturn(false);
-        when(roleRepository.findByName(RoleName.SELLER)).thenReturn(Optional.of(sellerRole));
-        when(passwordEncoder.encode("secret123")).thenReturn("encoded-password");
-        when(appUserRepository.save(any(AppUser.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-        AppUser saved = userService.register(request);
-
-        assertTrue(saved.getRoles().stream().anyMatch(role -> role.getName() == RoleName.SELLER));
-    }
-
-    @Test
-    void shouldFallbackToBuyerWhenUnknownRoleProvided() {
-        Role buyerRole = new Role(RoleName.BUYER);
-        request.setRole("random_role");
-
-        when(appUserRepository.existsByUsername("alice")).thenReturn(false);
-        when(appUserRepository.existsByEmail("alice@example.com")).thenReturn(false);
-        when(roleRepository.findByName(RoleName.BUYER)).thenReturn(Optional.of(buyerRole));
-        when(passwordEncoder.encode("secret123")).thenReturn("encoded-password");
-        when(appUserRepository.save(any(AppUser.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-        userService.register(request);
-
-        ArgumentCaptor<AppUser> captor = ArgumentCaptor.forClass(AppUser.class);
-        verify(appUserRepository).save(captor.capture());
-        assertTrue(captor.getValue().getRoles().stream().anyMatch(role -> role.getName() == RoleName.BUYER));
+        verify(userRepository, times(1)).findByEmail("test@mail.com");
     }
 }

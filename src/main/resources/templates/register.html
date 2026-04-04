@@ -1,28 +1,69 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - Book Exchange</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <title>Register</title>
+
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563eb',
+                        secondary: '#1e40af'
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-<body>
-<main class="auth-wrapper">
-    <h1>Register</h1>
-    <p>This form is UI-only for now. Registration API is available at <code>/api/auth/register</code>.</p>
-    <form class="auth-form" onsubmit="event.preventDefault(); alert('Use POST /api/auth/register for now.');">
-        <label for="username">Username</label>
-        <input id="username" type="text" required>
 
-        <label for="email">Email</label>
-        <input id="email" type="email" required>
+<body class="bg-gradient-to-br from-blue-100 to-blue-300 min-h-screen flex items-center justify-center">
 
-        <label for="password">Password</label>
-        <input id="password" type="password" required>
+<div class="bg-white shadow-2xl rounded-2xl p-8 w-full max-w-md">
 
-        <button type="submit">Create Account</button>
+    <h2 class="text-3xl font-bold text-center text-primary mb-6">
+        Create Account 🚀
+    </h2>
+
+    <form th:action="@{/register}" th:object="${user}" method="post" class="space-y-4">
+
+        <input type="text" th:field="*{name}" placeholder="Name"
+               class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+               required />
+
+        <input type="email" th:field="*{email}" placeholder="Email"
+               class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+               required />
+
+        <input type="password" th:field="*{password}" placeholder="Password"
+               class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+               required />
+
+        <select th:field="*{role}"
+                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                required>
+            <option value="">Select Role</option>
+            <option value="SELLER">Seller</option>
+            <option value="BUYER">Buyer</option>
+        </select>
+
+        <button type="submit"
+                class="w-full bg-primary text-white py-2 rounded-lg hover:bg-secondary transition duration-200">
+            Register
+        </button>
     </form>
-    <a th:href="@{/login}">Already have an account? Login</a>
-</main>
+
+    <p class="text-center text-sm mt-4">
+        Already have an account?
+        <a th:href="@{/login}" class="text-primary font-semibold hover:underline">
+            Login
+        </a>
+    </p>
+
+</div>
+
 </body>
 </html>

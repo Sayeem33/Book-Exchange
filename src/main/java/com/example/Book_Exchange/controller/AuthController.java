@@ -1,20 +1,12 @@
 package com.example.Book_Exchange.controller;
 
-import com.example.Book_Exchange.dto.auth.AuthResponse;
-import com.example.Book_Exchange.dto.auth.RegisterRequest;
+import com.example.Book_Exchange.entity.User;
 import com.example.Book_Exchange.service.UserService;
-import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
 
-@RestController
-@RequestMapping("/api/auth")
+@Controller
 public class AuthController {
 
     private final UserService userService;
@@ -23,15 +15,25 @@ public class AuthController {
         this.userService = userService;
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
-        userService.register(request);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new AuthResponse("User registered successfully"));
+    @GetMapping("/register")
+    public String registerPage(Model model) {
+        model.addAttribute("user", new User());
+        return "register";
     }
 
-    @GetMapping("/me")
-    public ResponseEntity<AuthResponse> me(Authentication authentication) {
-        return ResponseEntity.ok(new AuthResponse("Logged in as " + authentication.getName()));
+    @PostMapping("/register")
+    public String register(@ModelAttribute User user) {
+        userService.register(user);
+        return "redirect:/login";
+    }
+
+    @GetMapping("/login")
+    public String loginPage() {
+        return "login";
+    }
+
+    @GetMapping("/dashboard")
+    public String dashboard() {
+        return "dashboard";
     }
 }
