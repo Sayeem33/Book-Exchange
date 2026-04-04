@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Saved Books</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-50 text-gray-800">
+
+<!-- NAVBAR -->
+<div class="bg-white shadow-sm border-b px-8 py-5 flex justify-between items-center">
+
+    <h1 class="text-xl font-bold">❤️ Saved Books</h1>
+
+    <a href="/buyer/books"
+       class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition">
+        Browse Books
+    </a>
+
+</div>
+
+<!-- TITLE -->
+<div class="text-center mt-10">
+    <h2 class="text-3xl font-bold">Your Saved Books</h2>
+    <p class="text-gray-500 mt-2">All your saved books in one place</p>
+</div>
+
+<!-- EMPTY STATE -->
+<div th:if="${#lists.isEmpty(savedBooks)}"
+     class="text-center mt-20 text-gray-500">
+
+    <h3 class="text-xl font-semibold">No saved books yet 😢</h3>
+    <p class="mt-2">Start exploring and save your favorite books</p>
+
+    <a href="/buyer/books"
+       class="inline-block mt-5 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-500">
+        Browse Books
+    </a>
+</div>
+
+<!-- GRID -->
+<div class="max-w-6xl mx-auto px-6 mt-10 grid grid-cols-1 md:grid-cols-3 gap-6">
+
+    <!-- CARD -->
+    <div th:each="sb : ${savedBooks}"
+         class="bg-white border rounded-xl p-5 shadow-sm hover:shadow-md transition">
+
+        <h3 class="text-lg font-bold mb-1"
+            th:text="${sb.book.title}">
+            Title
+        </h3>
+
+        <p class="text-gray-500 text-sm mb-2"
+           th:text="${sb.book.author}">
+            Author
+        </p>
+
+        <p class="text-gray-700 text-sm mb-4"
+           th:text="${#strings.abbreviate(sb.book.description, 120)}">
+            Description
+        </p>
+
+        <!-- REMOVE BUTTON -->
+        <form th:action="@{'/buyer/remove-book/' + ${sb.book.id}}" method="post">
+
+            <input type="hidden"
+                   th:name="${_csrf.parameterName}"
+                   th:value="${_csrf.token}"/>
+
+<!--            <button class="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg">-->
+<!--                Remove-->
+<!--            </button>-->
+
+        </form>
+
+    </div>
+
+</div>
+
+</body>
+</html>

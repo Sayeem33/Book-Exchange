@@ -1,4 +1,14 @@
-# Book Exchange Platform - Phase-Wise Execution Plan
+git add Dockerfile .dockerignore
+git commit -m "Fix CI docker-build by using mvn in Dockerfile"
+git pushgit add Dockerfile .dockerignore
+git commit -m "Fix CI docker-build by using mvn in Dockerfile"
+git pushgit add Dockerfile .dockerignore
+git commit -m "Fix CI docker-build by using mvn in Dockerfile"
+git pushgit add Dockerfile .dockerignore
+git commit -m "Fix CI docker-build by using mvn in Dockerfile"
+git pushgit add Dockerfile .dockerignore
+git commit -m "Fix CI docker-build by using mvn in Dockerfile"
+git push# Book Exchange Platform - Phase-Wise Execution Plan
 
 This plan satisfies all project requirements, but testing is done within each phase, not all at once.
 From Day 1, every push/PR is automatically validated in GitHub Actions before merge.

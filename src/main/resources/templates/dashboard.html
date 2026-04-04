@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Dashboard</title>
+
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563eb',
+                        secondary: '#1e40af'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gradient-to-br from-blue-100 to-blue-300 min-h-screen">
+
+<!-- Top Navbar -->
+<div class="bg-white shadow-md px-6 py-4 flex justify-between items-center">
+    <h1 class="text-xl font-bold text-primary">📘 Book Marketplace</h1>
+
+    <form th:action="@{/logout}" method="post">
+        <button class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition">
+            Logout
+        </button>
+    </form>
+</div>
+
+<!-- Main Content -->
+<div class="flex justify-center items-center mt-10">
+
+    <div class="bg-white shadow-2xl rounded-2xl p-8 w-full max-w-lg text-center">
+
+        <h2 class="text-3xl font-bold text-primary mb-2">
+            Welcome 👋
+        </h2>
+
+        <!-- User Info -->
+        <p class="text-gray-700">
+            Logged in as:
+            <span class="font-semibold" th:text="${#authentication.name}"></span>
+        </p>
+
+        <!-- Role -->
+        <p class="text-gray-500 mb-6">
+            Role:
+            <span class="font-medium" th:text="${#authentication.authorities}"></span>
+        </p>
+
+        <!-- Actions -->
+        <div class="space-y-4">
+
+            <!-- SELLER -->
+            <a th:if="${#authorization.expression('hasRole(''SELLER'')')}"
+               href="/seller/books"
+               class="block bg-primary text-white py-3 rounded-lg hover:bg-secondary transition">
+                📚 Manage My Books
+            </a>
+
+            <!-- BUYER -->
+            <a th:if="${#authorization.expression('hasRole(''BUYER'')')}"
+               href="/buyer/books"
+               class="block bg-primary text-white py-3 rounded-lg hover:bg-secondary transition">
+                🔍 Browse Books
+            </a>
+
+            <!-- ADMIN -->
+            <a th:if="${#authorization.expression('hasRole(''ADMIN'')')}"
+               href="/admin/users"
+               class="block bg-primary text-white py-3 rounded-lg hover:bg-secondary transition">
+                👑 Manage Users
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

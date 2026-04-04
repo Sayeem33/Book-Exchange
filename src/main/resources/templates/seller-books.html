@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>My Books</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen">
+
+<div class="max-w-6xl mx-auto px-6 py-8">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+
+        <div>
+            <h2 class="text-3xl font-bold text-gray-800">📚 My Books</h2>
+            <p class="text-gray-500 text-sm mt-1">Manage your uploaded books</p>
+        </div>
+
+        <div class="flex gap-3">
+
+            <!-- Back to Dashboard -->
+            <a href="/dashboard"
+               class="bg-white border border-gray-300 text-gray-700 px-5 py-2 rounded-xl shadow-sm
+                  hover:bg-gray-50 hover:shadow-md transition flex items-center gap-2">
+
+                ← <span class="font-medium">Dashboard</span>
+            </a>
+
+            <!-- Add Book -->
+            <a href="/seller/add-book"
+               class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl shadow-md
+                  transition flex items-center gap-2">
+
+                ➕ <span class="font-medium">Add Book</span>
+            </a>
+
+        </div>
+
+    </div>
+    <!-- Books Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        <div th:each="book : ${books}"
+             class="bg-white rounded-2xl shadow p-5">
+
+            <h3 class="text-xl font-semibold text-gray-800"
+                th:text="${book.title}">Title</h3>
+
+            <p class="text-gray-500 mt-1">
+                ✍ <span th:text="${book.author}">Author</span>
+            </p>
+
+            <p class="text-gray-600 text-sm mt-3 line-clamp-3"
+               th:text="${book.description}">
+                Description
+            </p>
+
+            <div class="mt-5 flex justify-between items-center">
+
+                <span class="text-xs text-gray-400">
+                    ID: <span th:text="${book.id}"></span>
+                </span>
+
+                <!-- VIEW BUTTON -->
+                <button
+                        class="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded-lg text-sm"
+                        th:attr="onclick=|openModal('${book.title}','${book.author}','${book.description}','${book.id}')|">
+                    View
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<!-- MODAL -->
+<div id="bookModal"
+     class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+
+    <div class="bg-white w-full max-w-lg rounded-2xl p-6 shadow-xl relative">
+
+        <!-- Close Button -->
+        <button onclick="closeModal()"
+                class="absolute top-3 right-3 text-gray-500 hover:text-black text-xl">
+            ✖
+        </button>
+
+        <h2 id="modalTitle" class="text-2xl font-bold mb-2"></h2>
+
+        <p class="text-gray-600 mb-1">
+            ✍ <span id="modalAuthor"></span>
+        </p>
+
+        <p class="text-sm text-gray-500 mb-4">
+            ID: <span id="modalId"></span>
+        </p>
+
+        <p id="modalDescription" class="text-gray-700 leading-relaxed"></p>
+
+    </div>
+
+</div>
+
+<!-- SCRIPT -->
+<script>
+    function openModal(title, author, description, id) {
+        document.getElementById("modalTitle").innerText = title;
+        document.getElementById("modalAuthor").innerText = author;
+        document.getElementById("modalDescription").innerText = description;
+        document.getElementById("modalId").innerText = id;
+
+        document.getElementById("bookModal").classList.remove("hidden");
+    }
+
+    function closeModal() {
+        document.getElementById("bookModal").classList.add("hidden");
+    }
+</script>
+
+</body>
+</html>
